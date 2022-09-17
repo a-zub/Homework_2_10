@@ -18,6 +18,11 @@ public class EmployeeService {
     private static final int LIMIT = 10;
 
     private final Map<String, Employee> employees = new HashMap<>();
+    private final ValidatorService validatorService;
+
+    public EmployeeService(ValidatorService validatorService) {
+        this.validatorService = validatorService;
+    }
 
     private String getKey(String name, String surname) {
         return name + " | " + surname;
@@ -25,8 +30,12 @@ public class EmployeeService {
 
 
     public Employee addEmployee(String name, String surname, int department, double salary) {
-        Employee employee = new Employee(name, surname, department, salary);
-        String key = getKey(name, surname);
+        Employee employee = new Employee(
+                validatorService.validateName(name),
+                validatorService.validateSurname(surname),
+                department,
+                salary);
+        String key = getKey(employee.getName(), employee.getSurname());
         if (employees.containsKey(key)) {
             throw new EmployeeAlreadyAddedException("Такой сотрудник уже имеется!");
         }
